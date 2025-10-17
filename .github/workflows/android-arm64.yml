@@ -10,6 +10,15 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    # Use a matrix to build for common Android architectures in parallel
+    strategy:
+      matrix:
+        arch: [android-arm64]
+        
+    # Set environment variables, particularly increasing heap size for the intensive build process
+    env:
+      JAVA_TOOL_OPTIONS: "-Xmx6g"
+      MAVEN_OPTS: "-Xmx2g"
 
     steps:
     - name: Checkout JavaCPP-Presets Source
