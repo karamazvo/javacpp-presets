@@ -1,10 +1,11 @@
 name: JavaCPP Android NDK Build (r29), v1.5.0, Support for 16KB page size
 
 on:
-  push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
+  # push:
+  #   branches: [ "master" ]
+  # pull_request:
+  #   branches: [ "master" ]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -45,7 +46,7 @@ jobs:
       uses: nttld/setup-ndk@v1.5.0
       id: setup-ndk
       with:
-        ndk-version: r29
+        ndk-version: r28c
         add-to-path: false # We will explicitly set ANDROID_NDK_HOME
   
     - name: Set ANDROID_NDK_HOME Environment Variable
@@ -54,11 +55,10 @@ jobs:
         echo "ANDROID_NDK_HOME=${{ steps.setup-ndk.outputs.ndk-path }}" >> $GITHUB_ENV
 
     - name: Install Build Essentials and CMake
-    # Ensures that "make" (part of build-essential) and "cmake" are available on the runner
+      # Ensures that "make" (part of build-essential) and "cmake" are available on the runner
       run: |
-        sudo apt-get update
-        sudo apt-get install -y build-essential cmake ninja-build
-      
+        sudo apt-get update && sudo apt-get install -y build-essential cmake ninja-build
+        
     - name: Build OpenCV and FFmpeg for ${{ matrix.arch }}
       # Run the Maven build inside the javacpp-presets directory
       run: |
