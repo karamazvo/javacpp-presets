@@ -23,10 +23,12 @@ jobs:
     steps:
     - name: Checkout JavaCPP-Presets Source
       # We check out the source code for javacpp-presets into a subdirectory
+      # Release version 1.5.12
       uses: actions/checkout@v4
       with:
         repository: bytedeco/javacpp-presets
         path: javacpp-presets
+        ref: 'a8dfe2165e03e69fcc3afd1ea1483ce4a0aa9c34'
 
     - name: Set up JDK 17
       # Java 17 is recommended for modern Java builds
