@@ -25,15 +25,10 @@ jobs:
       with:
         distribution: 'temurin'
         java-version: '17'
-
-    - name: Set up Maven
-      uses: actions/setup-maven@v4
-      with:
-        maven-version: '3.9.6'
       
     - name: Download and Setup Android NDK r29
       # This action automatically downloads and sets up the specified NDK version
-      uses: nttld/setup-ndk@v1
+      uses: nttld/setup-ndk@v1.5.0
       id: setup-ndk
       with:
         ndk-version: r29
