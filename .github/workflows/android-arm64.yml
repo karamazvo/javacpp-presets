@@ -72,4 +72,5 @@ jobs:
         path: |
           javacpp-presets/opencv/target/*.jar
           javacpp-presets/ffmpeg/target/*.jar
+          javacpp-presets/openblas/target/*.jar
         retention-days: 7
