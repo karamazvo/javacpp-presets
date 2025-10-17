@@ -57,7 +57,7 @@ jobs:
     # Ensures that "make" (part of build-essential) and "cmake" are available on the runner
       run: |
         sudo apt-get update
-        sudo apt-get install -y build-essential cmake
+        sudo apt-get install -y build-essential cmake ninja-build
       
     - name: Build OpenCV and FFmpeg for ${{ matrix.arch }}
       # Run the Maven build inside the javacpp-presets directory
@@ -69,6 +69,7 @@ jobs:
           --projects opencv,ffmpeg \
           -Dmaven.test.skip=true \
           -T 1C # Limit to 1 core per module to stabilize the native compilation process
+  
     - name: Upload Build Artifacts (${{ matrix.arch }})
       # Save the generated JAR files as workflow artifacts
       uses: actions/upload-artifact@v4
