@@ -1,0 +1,80 @@
+name: JavaCPP Android NDK Build (r29), v1.5.0, Support for 16KB page size
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    # Use a matrix to build for common Android architectures in parallel
+    strategy:
+      matrix:
+        arch: [android-arm64]
+        
+    # Set environment variables, particularly increasing heap size for the intensive build process
+    env:
+      JAVA_TOOL_OPTIONS: "-Xmx6g"
+      MAVEN_OPTS: "-Xmx2g"
+
+    steps:
+    - name: Checkout JavaCPP-Presets Source
+      # We check out the source code for javacpp-presets into a subdirectory
+      # Release version 1.5.12
+      uses: actions/checkout@v4
+      with:
+        repository: bytedeco/javacpp-presets
+        path: javacpp-presets
+        # 1.5.0
+        ref: '6667d4722e0888bff754e20b96b2d44a8350f238'
+        # 1.5.12 (openblas)
+        # ref: 'a8dfe2165e03e69fcc3afd1ea1483ce4a0aa9c34'
+
+    - name: Set up JDK 17
+      # Java 17 is recommended for modern Java builds
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+      
+    - name: Download and Setup Android NDK r29
+      # This action automatically downloads and sets up the specified NDK version
+      uses: nttld/setup-ndk@v1.5.0
+      id: setup-ndk
+      with:
+        ndk-version: r29
+        add-to-path: false # We will explicitly set ANDROID_NDK_HOME
+  
+    - name: Set ANDROID_NDK_HOME Environment Variable
+      # Set the NDK path retrieved from the setup-ndk action output
+      run: |
+        echo "ANDROID_NDK_HOME=${{ steps.setup-ndk.outputs.ndk-path }}" >> $GITHUB_ENV
+
+    - name: Install Build Essentials and CMake
+    # Ensures that "make" (part of build-essential) and "cmake" are available on the runner
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential cmake
+      
+    - name: Build OpenCV and FFmpeg for ${{ matrix.arch }}
+      # Run the Maven build inside the javacpp-presets directory
+      run: |
+        cd javacpp-presets
+        mvn clean install \
+          -Djavacpp.platform=${{ matrix.arch }} \
+          -Djavacpp.platform.root=${{ env.ANDROID_NDK_HOME }} \
+          --projects opencv,ffmpeg \
+          -Dmaven.test.skip=true \
+          -T 1C # Limit to 1 core per module to stabilize the native compilation process
+    - name: Upload Build Artifacts (${{ matrix.arch }})
+      # Save the generated JAR files as workflow artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: javacpp-android-binaries-${{ matrix.arch }}
+        path: |
+          javacpp-presets/opencv/target/*.jar
+          javacpp-presets/ffmpeg/target/*.jar
+        retention-days: 7
