@@ -28,7 +28,10 @@ jobs:
       with:
         repository: bytedeco/javacpp-presets
         path: javacpp-presets
-        ref: 'a8dfe2165e03e69fcc3afd1ea1483ce4a0aa9c34'
+        # 1.5.0
+        ref: '6667d4722e0888bff754e20b96b2d44a8350f238'
+        # 1.5.12 (openblas)
+        # ref: 'a8dfe2165e03e69fcc3afd1ea1483ce4a0aa9c34'
 
     - name: Set up JDK 17
       # Java 17 is recommended for modern Java builds
