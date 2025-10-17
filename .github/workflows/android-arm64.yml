@@ -29,9 +29,9 @@ jobs:
         repository: bytedeco/javacpp-presets
         path: javacpp-presets
         # 1.5.0
-        ref: '6667d4722e0888bff754e20b96b2d44a8350f238'
+        # ref: '6667d4722e0888bff754e20b96b2d44a8350f238'
         # 1.5.12 (openblas)
-        # ref: 'a8dfe2165e03e69fcc3afd1ea1483ce4a0aa9c34'
+        ref: 'a8dfe2165e03e69fcc3afd1ea1483ce4a0aa9c34'
 
     - name: Set up JDK 17
       # Java 17 is recommended for modern Java builds
@@ -60,7 +60,7 @@ jobs:
         mvn clean install \
           -Djavacpp.platform=${{ matrix.arch }} \
           -Djavacpp.platform.root=${{ env.ANDROID_NDK_HOME }} \
-          --projects opencv,ffmpeg \
+          --projects openblas,opencv,ffmpeg \
           -Dmaven.test.skip=true \
           -T 1C # Limit to 1 core per module to stabilize the native compilation process
 
