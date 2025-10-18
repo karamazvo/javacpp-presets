@@ -99,8 +99,10 @@ jobs:
       run: |
         cd javacpp-presets
         mvn clean install \
+          -Dandroid.api=24 \
           -Djavacpp.platform=${{ matrix.arch }} \
           -Djavacpp.platform.root=${{ env.ANDROID_NDK_HOME }} \
+          -Djavacpp.platform.compiler=${{ env.ANDROID_NDK_HOME }}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android24-clang++ \
           --projects opencv,ffmpeg \
           -Dmaven.test.skip=true \
           -T 1C # Limit to 1 core per module to stabilize the native compilation process
