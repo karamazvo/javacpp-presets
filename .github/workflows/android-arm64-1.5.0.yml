@@ -81,7 +81,7 @@ jobs:
       id: setup-ndk
       with:
         ndk-version: r29
-        add-to-path: false # We will explicitly set ANDROID_NDK_HOME
+        # add-to-path: false # We will explicitly set ANDROID_NDK_HOME
   
     - name: Set ANDROID_NDK_HOME Environment Variable
       # Set the NDK path retrieved from the setup-ndk action output
