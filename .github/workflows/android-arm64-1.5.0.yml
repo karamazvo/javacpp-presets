@@ -41,7 +41,8 @@ jobs:
         FFMPEG_FILE="javacpp-presets/ffmpeg/cppbuild.sh"
         OPENCV_FILE="javacpp-presets/opencv/cppbuild.sh"
         
-        # --- 1. Standard updates for FFmpeg and OpenCV (toolchain path, API level, flag removal) ---
+        # --- 1. Standard updates for FFmpeg and OpenCV (toolchain path, API level, flag replacement) ---
+        
         # 1a. Update CMAKE_TOOLCHAIN_FILE path (for both)
         sed -i 's|-DCMAKE_TOOLCHAIN_FILE=platforms/android/android.toolchain.cmake|-DCMAKE_TOOLCHAIN_FILE=${PLATFORM_ROOT}/build/cmake/android.toolchain.cmake|g' $FFMPEG_FILE $OPENCV_FILE
         
@@ -51,8 +52,8 @@ jobs:
         # 1c. Remove the deprecated ANDROID_TOOLCHAIN_NAME flag (for both).
         sed -i 's/-DANDROID_TOOLCHAIN_NAME=[^[:space:]]* //g' $FFMPEG_FILE $OPENCV_FILE
         
-        # 1d. Remove the deprecated ANDROID_STL=c++_static flag (for both).
-        sed -i 's/-DANDROID_STL=c++_static //g' $FFMPEG_FILE $OPENCV_FILE
+        # 1d. FIX: Replace deprecated ANDROID_STL=c++_static with modern ANDROID_STL=c++_shared
+        sed -i 's/-DANDROID_STL=c++_static /-DANDROID_STL=c++_shared /g' $FFMPEG_FILE $OPENCV_FILE
   
         # --- 2. Remove old OpenCV specific toolchain workarounds (as requested) ---
         
@@ -67,7 +68,6 @@ jobs:
         # sedinplace "s/<LINK_LIBRARIES>/<LINK_LIBRARIES> ${ANDROID_LIBS:-}/g" platforms/android/android.toolchain.cmake
         sed -i '/sedinplace "s\/<LINK_LIBRARIES>\/<LINK_LIBRARIES> ${ANDROID_LIBS:-\}\/g" platforms\/android\/android.toolchain.cmake/d' $OPENCV_FILE
 
-      
     - name: Set up JDK 17
       # Java 17 is recommended for modern Java builds
       uses: actions/setup-java@v4
