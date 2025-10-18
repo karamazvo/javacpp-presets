@@ -36,26 +36,26 @@ jobs:
 
     - name: Patch CPPBuild Scripts for NDK Toolchain Update
       # Modifies cppbuild.sh in opencv and ffmpeg to use the modern NDK CMake path, 
-      # set API level 24, and remove deprecated flags.
+      # set API level 24, remove deprecated flags, and remove old OpenCV toolchain workarounds.
       run: |
-        FILES="javacpp-presets/ffmpeg/cppbuild.sh javacpp-presets/opencv/cppbuild.sh"
+        FFMPEG_FILE="javacpp-presets/ffmpeg/cppbuild.sh"
+        OPENCV_FILE="javacpp-presets/opencv/cppbuild.sh"
         
-        # 1. Update CMAKE_TOOLCHAIN_FILE path to use the NDK's new location for r29, 
-        #    using ${PLATFORM_ROOT} which is provided by the Maven build.
-        sed -i 's|-DCMAKE_TOOLCHAIN_FILE=platforms/android/android.toolchain.cmake|-DCMAKE_TOOLCHAIN_FILE=${PLATFORM_ROOT}/build/cmake/android.toolchain.cmake|g' $FILES
+        # --- 1. Standard updates for FFmpeg and OpenCV (toolchain path, API level, flag removal) ---
+        # 1a. Update CMAKE_TOOLCHAIN_FILE path (for both)
+        sed -i 's|-DCMAKE_TOOLCHAIN_FILE=platforms/android/android.toolchain.cmake|-DCMAKE_TOOLCHAIN_FILE=${PLATFORM_ROOT}/build/cmake/android.toolchain.cmake|g' $FFMPEG_FILE $OPENCV_FILE
         
-        # 2. Change the NATIVE_API_LEVEL from 21 (or whatever is present) to 24.
-        #    Using a regex to catch existing API levels like 21, 16, etc.
-        sed -i 's/-DANDROID_NATIVE_API_LEVEL=[0-9]\{2\}/-DANDROID_NATIVE_API_LEVEL=24/g' $FILES
+        # 1b. Change the NATIVE_API_LEVEL to 24 (for both)
+        sed -i 's/-DANDROID_NATIVE_API_LEVEL=[0-9]\{2\}/-DANDROID_NATIVE_API_LEVEL=24/g' $FFMPEG_FILE $OPENCV_FILE
         
-        # 3. Remove the deprecated ANDROID_TOOLCHAIN_NAME flag.
-        #    Using a broad match to handle different architectures' toolchain names.
-        sed -i 's/-DANDROID_TOOLCHAIN_NAME=[^[:space:]]* //g' $FILES
+        # 1c. Remove the deprecated ANDROID_TOOLCHAIN_NAME flag (for both).
+        sed -i 's/-DANDROID_TOOLCHAIN_NAME=[^[:space:]]* //g' $FFMPEG_FILE $OPENCV_FILE
         
-        # 4. Remove the deprecated ANDROID_STL=c++_static flag.
-        sed -i 's/-DANDROID_STL=c++_static //g' $FILES
-
+        # 1d. Remove the deprecated ANDROID_STL=c++_static flag (for both).
+        sed -i 's/-DANDROID_STL=c++_static //g' $FFMPEG_FILE $OPENCV_FILE
+  
         # --- 2. Remove old OpenCV specific toolchain workarounds (as requested) ---
+        
         # 2a. Delete the comment line related to the workaround
         sed -i '/work around the toolchain for Android not supporting Clang with libc++ properly/d' $OPENCV_FILE
         
