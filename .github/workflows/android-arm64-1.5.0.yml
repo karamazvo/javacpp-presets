@@ -34,6 +34,27 @@ jobs:
         # 1.5.12 (openblas)
         # ref: 'a8dfe2165e03e69fcc3afd1ea1483ce4a0aa9c34'
 
+    - name: Patch CPPBuild Scripts for NDK Toolchain Update
+      # Modifies cppbuild.sh in opencv and ffmpeg to use the modern NDK CMake path, 
+      # set API level 24, and remove deprecated flags.
+      run: |
+        FILES="javacpp-presets/ffmpeg/cppbuild.sh javacpp-presets/opencv/cppbuild.sh"
+        
+        # 1. Update CMAKE_TOOLCHAIN_FILE path to use the NDK's new location for r29, 
+        #    using ${PLATFORM_ROOT} which is provided by the Maven build.
+        sed -i 's|-DCMAKE_TOOLCHAIN_FILE=platforms/android/android.toolchain.cmake|-DCMAKE_TOOLCHAIN_FILE=${PLATFORM_ROOT}/build/cmake/android.toolchain.cmake|g' $FILES
+        
+        # 2. Change the NATIVE_API_LEVEL from 21 (or whatever is present) to 24.
+        #    Using a regex to catch existing API levels like 21, 16, etc.
+        sed -i 's/-DANDROID_NATIVE_API_LEVEL=[0-9]\{2\}/-DANDROID_NATIVE_API_LEVEL=24/g' $FILES
+        
+        # 3. Remove the deprecated ANDROID_TOOLCHAIN_NAME flag.
+        #    Using a broad match to handle different architectures' toolchain names.
+        sed -i 's/-DANDROID_TOOLCHAIN_NAME=[^[:space:]]* //g' $FILES
+        
+        # 4. Remove the deprecated ANDROID_STL=c++_static flag.
+        sed -i 's/-DANDROID_STL=c++_static //g' $FILES
+      
     - name: Set up JDK 17
       # Java 17 is recommended for modern Java builds
       uses: actions/setup-java@v4
