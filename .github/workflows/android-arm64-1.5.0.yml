@@ -54,6 +54,19 @@ jobs:
         
         # 4. Remove the deprecated ANDROID_STL=c++_static flag.
         sed -i 's/-DANDROID_STL=c++_static //g' $FILES
+
+        # --- 2. Remove old OpenCV specific toolchain workarounds (as requested) ---
+        # 2a. Delete the comment line related to the workaround
+        sed -i '/work around the toolchain for Android not supporting Clang with libc++ properly/d' $OPENCV_FILE
+        
+        # 2b. Delete the first sedinplace command
+        # sedinplace '/include_directories/d' platforms/android/android.toolchain.cmake
+        sed -i '/sedinplace '"'"'\/include_directories\/d'"'"' platforms\/android\/android.toolchain.cmake/d' $OPENCV_FILE
+        
+        # 2c. Delete the second sedinplace command
+        # sedinplace "s/<LINK_LIBRARIES>/<LINK_LIBRARIES> ${ANDROID_LIBS:-}/g" platforms/android/android.toolchain.cmake
+        sed -i '/sedinplace "s\/<LINK_LIBRARIES>\/<LINK_LIBRARIES> ${ANDROID_LIBS:-\}\/g" platforms\/android\/android.toolchain.cmake/d' $OPENCV_FILE
+
       
     - name: Set up JDK 17
       # Java 17 is recommended for modern Java builds
